@@ -116,7 +116,7 @@ func rssSearch(uid, term, engine, uri string) ([]Result, error) {
 
 	// Capture the data we need for our results if we find the search term.
 	for _, item := range d.Channel.Items {
-		if strings.Contains(strings.ToLower(item.Description), strings.ToLower(term)) {
+		if strings.Contains(item.Description, term) {
 			results = append(results, Result{
 				Engine:  engine,
 				Title:   item.Title,
