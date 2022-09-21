@@ -1,3 +1,4 @@
+## Load generator histograms
 `hey` Load generator - initial performance
 ```
 hey -m POST -c 100 -n 10000 "http://localhost:5000/search?term=trump&cnn=on&bbc=on&nyt=on"
@@ -91,6 +92,7 @@ Status code distribution:
 
 ```
 
+## GC Trace
 Trace output
 
 ```
@@ -702,3 +704,41 @@ gc 591 @37.371s 1%: 0.082+1.4+0.026 ms clock, 0.33+1.1/1.3/0+0.10 ms cpu, 5->5->
 gc 592 @37.375s 1%: 0.081+1.5+0.049 ms clock, 0.32+0.73/1.5/0+0.19 ms cpu, 4->5->2 MB, 5 MB goal, 0 MB stacks, 0 MB globals, 4 P
 GC forced
 ```
+
+## Go pprof tool
+
+Visit [pprof endpoint](http://localhost:5000/debug/pprof/) and fetch the relevant binary.
+
+Run with:
+
+```
+go tool pprof <binary>
+```
+
+Using the binary from [/debug/pprof/allocs](http://localhost:5000/debug/pprof/allocs?debug=1) for example.
+
+Print the top-most expensive allocations:
+```
+(pprof) top
+Showing nodes accounting for 1348.19MB, 92.44% of 1458.41MB total
+Dropped 127 nodes (cum <= 7.29MB)
+Showing top 10 nodes out of 56
+      flat  flat%   sum%        cum   cum%
+  578.59MB 39.67% 39.67%   578.59MB 39.67%  strings.(*Builder).grow (inline)
+  369.95MB 25.37% 65.04%   369.95MB 25.37%  bytes.growSlice
+  168.88MB 11.58% 76.62%   690.42MB 47.34%  github.com/ardanlabs/gotraining/topics/go/profiling/project/service.render
+   83.75MB  5.74% 82.36%   801.18MB 54.94%  github.com/ardanlabs/gotraining/topics/go/profiling/project/service.handler
+   51.50MB  3.53% 85.89%       97MB  6.65%  reflect.Value.call
+      29MB  1.99% 87.88%   613.59MB 42.07%  github.com/ardanlabs/gotraining/topics/go/profiling/project/search.rssSearch
+      22MB  1.51% 89.39%       22MB  1.51%  reflect.FuncOf
+   18.51MB  1.27% 90.66%    18.51MB  1.27%  github.com/ardanlabs/gotraining/topics/go/profiling/project/search.Submit
+      16MB  1.10% 91.76%      113MB  7.75%  text/template.(*state).evalCall
+      10MB  0.69% 92.44%    19.50MB  1.34%  reflect.MakeSlice
+```
+Show a visualization weighted by the most expensive nodes.
+```
+(pprof) web
+(pprof) svg
+```
+
+![allocations profile svg](./profile001.svg)
